@@ -4,6 +4,9 @@ import com.alibaba.druid.pool.DruidConnectionHolder;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
 
+/**
+ * 覆盖DruidDataSource
+ */
 public class MyDruidDataSource extends DruidDataSource
 {
 

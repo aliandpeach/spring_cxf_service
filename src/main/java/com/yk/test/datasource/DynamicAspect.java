@@ -47,7 +47,6 @@ public class DynamicAspect
     public void foundAfterThrowing(JoinPoint joinPoint)
     {
         System.out.println(joinPoint);
-
     }
 
 }

@@ -12,7 +12,7 @@ public class DynamicDataSource extends DruidDataSource
     {
         try
         {
-            return MyDruidConnectionHolder.getConnection(this);
+            return MyDruidConnectionHolder.getInstance().getConnection(this);
         }
         catch (IllegalAccessException e)
         {

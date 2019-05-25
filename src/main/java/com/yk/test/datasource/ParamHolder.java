@@ -1,5 +1,8 @@
 package com.yk.test.datasource;
 
+/**
+ * 线程本地变量
+ */
 public class ParamHolder
 {
     private ThreadLocal<String> threadLocal = new ThreadLocal<>();
