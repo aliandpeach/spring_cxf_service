@@ -1,6 +1,7 @@
 package com.yk.test;
 
 import com.yk.test.restful.RestfulPublish;
+import com.yk.test.rmi.publish.RMIPublish;
 import com.yk.test.service.TestService;
 import com.yk.test.util.ContextUtil;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -17,6 +18,7 @@ public class Application
         new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
         Executors.newFixedThreadPool(1).submit(() -> {
             RestfulPublish.getInstance().publish();
+            RMIPublish.getInstance().publish();
         });
 
         TestService testService = ContextUtil.getInstance().getBean(TestService.class);

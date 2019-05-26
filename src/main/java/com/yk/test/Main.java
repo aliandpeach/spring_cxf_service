@@ -4,7 +4,7 @@ public class Main
 {
     public static void main(String arg[])
     {
-        A b = new B();
+        B b = new B();
 
         System.out.println(A.a);
         System.out.println(A.b);
