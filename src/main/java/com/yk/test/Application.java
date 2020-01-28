@@ -3,6 +3,7 @@ package com.yk.test;
 import com.yk.test.restful.RestfulPublish;
 import com.yk.test.rmi.publish.RMIPublish;
 import com.yk.test.service.TestService;
+import com.yk.test.task.AsyncServiceImpl;
 import com.yk.test.util.ContextUtil;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -27,5 +28,9 @@ public class Application
         List<Map<String, String>> list = testService.testInterfaceMybatisQuery();
         System.out.println("testInterfaceMybatisQuery");
         System.out.println(list);
+
+        AsyncServiceImpl asyncService = ContextUtil.getInstance().getBean(AsyncServiceImpl.class);
+        asyncService.orderTaskV1();
+        asyncService.orderTaskV2();
     }
 }
