@@ -2,6 +2,7 @@ package com.yk.leetcode;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -15,7 +16,7 @@ class ZeroEvenOdd {
 
     private Map<String, Boolean> finished = new ConcurrentHashMap<>();
 
-    private volatile AtomicInteger next = new AtomicInteger(0);
+    private AtomicInteger next = new AtomicInteger(0);
     private int n;
 
     public ZeroEvenOdd(int n) {
@@ -27,7 +28,7 @@ class ZeroEvenOdd {
 
     // printNumber.accept(x) outputs "x", where x is an integer.
     public void zero(IntConsumer printNumber) throws InterruptedException {
-        while (next.get() < n) {
+        while (next.get() <= n) {
             try {
                 lock.lock();
                 while (!finished.get("zero")) {
@@ -35,7 +36,8 @@ class ZeroEvenOdd {
                     condition.await();
 //                    System.out.println("zero run...");
                 }
-                printNumber.accept(0);
+                if (next.get() < n)
+                    printNumber.accept(0);
                 next.incrementAndGet();
                 finished.put("zero", false);
 
@@ -47,10 +49,19 @@ class ZeroEvenOdd {
                 lock.unlock();
             }
         }
+
+        try {
+            lock.lock();
+            finished.put("even", true);
+            finished.put("odd", true);
+            condition.signalAll();
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void even(IntConsumer printNumber) throws InterruptedException {
-        while (next.get() < n) {
+        while (next.get() <= n) {
             try {
                 lock.lock();
                 while (!finished.get("even")) {
@@ -58,11 +69,11 @@ class ZeroEvenOdd {
                     condition.await();
 //                    System.out.println("even run...");
                 }
-                if (next.get() % 2 == 0 && next.get() != 0) {
+                if (next.get() % 2 == 0 && next.get() != 0 && next.get() <= n) {
                     printNumber.accept(next.get());
                     finished.put("even", false);
                     finished.put("zero", true);
-                    finished.put("odd", false);
+                    finished.put("odd", true);
                     condition.signalAll();
                 }
             } finally {
@@ -72,7 +83,7 @@ class ZeroEvenOdd {
     }
 
     public void odd(IntConsumer printNumber) throws InterruptedException {
-        while (next.get() < n) {
+        while (next.get() <= n) {
             try {
                 lock.lock();
                 while (!finished.get("odd")) {
@@ -80,11 +91,11 @@ class ZeroEvenOdd {
                     condition.await();
 //                    System.out.println("odd run...");
                 }
-                if (next.get() % 2 == 1 && next.get() != 0) {
+                if (next.get() % 2 == 1 && next.get() != 0 && next.get() <= n) {
                     printNumber.accept(next.get());
                     finished.put("odd", false);
                     finished.put("zero", true);
-                    finished.put("even", false);
+                    finished.put("even", true);
                     condition.signalAll();
                 }
             } finally {
@@ -93,8 +104,8 @@ class ZeroEvenOdd {
         }
     }
 
-    public static void main(String[] args) {
-        ZeroEvenOdd zeroEvenOdd = new ZeroEvenOdd(5);
+    public static void main(String[] args) throws InterruptedException {
+        ZeroEvenOdd zeroEvenOdd = new ZeroEvenOdd(100);
         Thread a = new Thread(() -> {
             try {
                 zeroEvenOdd.zero(System.out::print);
@@ -105,6 +116,7 @@ class ZeroEvenOdd {
         a.setName("A");
         Thread b = new Thread(() -> {
             try {
+                TimeUnit.MILLISECONDS.sleep(1000);
                 zeroEvenOdd.even(System.out::print);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -113,14 +125,16 @@ class ZeroEvenOdd {
         b.setName("B");
         Thread c = new Thread(() -> {
             try {
+//                TimeUnit.MILLISECONDS.sleep(1000);
                 zeroEvenOdd.odd(System.out::print);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         });
         c.setName("C");
+
         a.start();
-        b.start();
         c.start();
+        b.start();
     }
 }
